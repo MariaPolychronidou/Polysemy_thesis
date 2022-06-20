@@ -1,0 +1,1239 @@
+---
+title: "Gaze analysis"
+author: "Maria Polychronidou"
+date: "30/3/2022"
+output:
+  html_document:
+    toc: yes
+    code_folding: hide
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+    number_sections: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Preprocessing in Data Viewer software. I merged nearby fixations that had duration less than 100 ms (Fixation Duration Threshold) and were within 1.5° (Fixation Merging Amplitude Threshold) of the target fixation. I also removed the fixations that were immediately before and after blinks (Duration to exclude before and after blink saccades: 100 ms).
+
+
+# Load packages
+
+```{r}
+library(lmerTest)
+library(lme4)
+library(car)
+library(visreg)
+library(boot)
+library(multcomp)
+library(emmeans)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+
+# useful plotting functions:
+if (!file.exists("myFunctions.R")) {
+    download.file("http://www.let.rug.nl/wieling/Statistics/Mixed-Effects/lab/myFunctions.R", 
+        "myFunctions.R")
+}
+
+source("myFunctions.R")
+```
+
+
+# Load data
+
+```{r}
+library(readr)
+Polym001 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym001.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym002 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym002.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym003 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym003.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym004 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym004.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym005 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym005.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym006 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym006.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym007 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym007.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym008 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym008.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym009 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym009.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym010 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym010.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym011 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym011.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym012 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym012.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym013 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym013.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym014 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym014.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym015 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym015.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym016 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym016.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym017 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym017.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym018 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym018.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym019 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym019.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym020 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym020.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym021 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym021.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym022 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym022.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym023 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym023.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym024 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym024.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym025 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym025.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym026 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym026.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym027 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym027.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym028 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym028.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym029 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym029.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym030 <- read_delim("Fixation report with filters (merge fixations and blink)/Fixation reports_Polym030.xls.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+
+```
+
+
+# Merge datasets
+
+```{r}
+data <- rbind(Polym001,Polym002,Polym003,Polym004,Polym005,Polym006,Polym007,Polym008,Polym009,Polym010,Polym011,Polym012,Polym013,Polym014,Polym015,Polym016,Polym017,Polym018,Polym019,Polym020,Polym021,Polym022,Polym023,Polym024,Polym025,Polym026,Polym027,Polym028,Polym029,Polym030)
+```
+
+```{r}
+Language_questionnaire_data <- read_excel("Language questionnaire data.xlsx")
+Nback_scores <- readRDS("Nback_scores.rds")
+Flanker_scores <- readRDS("Flanker_scores.rds")
+Set_shifting_scores <- readRDS("Set-shifting.rds")
+
+data <- merge(data,Nback_scores,by.x=c("RECORDING_SESSION_LABEL"), by.y = c("participant"),all = TRUE)
+data <- merge(data,Flanker_scores,by.x=c("RECORDING_SESSION_LABEL"), by.y = c("participant"),all = TRUE)
+data <- merge(data, Language_questionnaire_data,by.x=c("RECORDING_SESSION_LABEL"), by.y = c("Participant_number"),all = TRUE)
+data <- merge(data, Set_shifting_scores,by.x=c("RECORDING_SESSION_LABEL"), by.y = c("Participant"),all = TRUE)
+```
+
+# Keep necessary columns 
+
+```{r}
+data <- data %>%
+  dplyr::select(RECORDING_SESSION_LABEL, TRIAL_INDEX, CURRENT_FIX_DURATION, CURRENT_FIX_INDEX, CURRENT_FIX_INTEREST_AREA_DWELL_TIME, CURRENT_FIX_INTEREST_AREA_FIX_COUNT, CURRENT_FIX_INTEREST_AREA_ID, CURRENT_FIX_INTEREST_AREA_LABEL, CURRENT_FIX_INTEREST_AREA_RUN_ID, CURRENT_FIX_RUN_DWELL_TIME, CURRENT_FIX_RUN_INDEX, CURRENT_FIX_NEAREST_INTEREST_AREA,CURRENT_FIX_NEAREST_INTEREST_AREA_DISTANCE,CURRENT_FIX_NEAREST_INTEREST_AREA_LABEL,CURRENT_FIX_PUPIL, NEXT_FIX_DURATION, ACCURACY, KEY_PRESSED, RT, Session_Name_, Trial_Index_, Trial_Recycled_, block_type, compound, condition, correct_answer, critical_word, critical_word_length, criticalword_number, difficulty,eeg_sentences, familiarity, item,logfreq_zipf, main_paraphrase, noun_frequency, percentage_ratio_nouns, question,  ratio_nouns, sensicality,syllable_count, verb_frequency,aprime,dprime,performance, `Q14_a-f_attitudes`, `Q14_g-t_CLIP-Q`,Q15_social_media,Q16_reading_total,SwitchingCost,MixingCost)
+
+data <- data %>%
+  filter(condition != "practice")
+
+data$attitudes <- data$`Q14_a-f_attitudes`
+data$CLIP_Q <- data$`Q14_g-t_CLIP-Q`
+data$social_media <- data$Q15_social_media
+data$reading <- data$Q16_reading_total
+
+```
+
+
+
+# Create new columns
+
+```{r}
+
+# Step 1: make a column for every part for every item when the participant was looking at the critical word
+
+
+library(tibble)
+library(dplyr)
+
+data <- data %>%
+  mutate(CRITICAL_FIX = if_else(
+     criticalword_number == CURRENT_FIX_NEAREST_INTEREST_AREA, TRUE, FALSE))
+
+# Step 2: the first fixation within a trial that a participant looked at the critical word 
+
+Fixdata <- data %>%
+  mutate(FIRST_FIX = if_else(
+     CRITICAL_FIX == TRUE & CURRENT_FIX_INTEREST_AREA_RUN_ID == 1 & CURRENT_FIX_RUN_INDEX == 1, TRUE,FALSE))
+
+# Step 3: the duration of the first fixation to the critical word
+
+Fixdata$groupby <- paste(Fixdata$RECORDING_SESSION_LABEL,Fixdata$TRIAL_INDEX,sep="_")
+Fixdata2 <- Fixdata %>%
+  group_by(groupby) %>%
+  mutate(FIRST_FIX_DUR = ifelse(FIRST_FIX == TRUE, CURRENT_FIX_DURATION, NA))
+
+# Step 4: the first pass duration of the critical word
+
+Fixdata3 <- Fixdata2 %>%
+  mutate(FIRST_PASS_DURATION = ifelse(
+    FIRST_FIX == TRUE & CURRENT_FIX_INTEREST_AREA_RUN_ID == 1, CURRENT_FIX_RUN_DWELL_TIME, NA))
+
+Fixdata3$FIRST_PASS_DURATION <- as.numeric(Fixdata3$FIRST_PASS_DURATION)
+
+# Step 5: the total duration of the critical word
+
+Fixdata4 <- Fixdata3 %>%
+  group_by(groupby) %>%
+  mutate(TOTAL_DURATION = ifelse(
+    FIRST_FIX == TRUE, CURRENT_FIX_INTEREST_AREA_DWELL_TIME, NA))
+
+Fixdata4$TOTAL_DURATION <- as.numeric(Fixdata4$TOTAL_DURATION)
+
+```
+
+# Keep necessary data
+
+```{r}
+Fixdata5 <- Fixdata4 %>%
+  filter(condition != "conventional_verbs" & condition != "nonsensical") %>%
+  filter(FIRST_FIX != "NA") %>%
+  filter(FIRST_PASS_DURATION != "NA")%>%
+  filter(TOTAL_DURATION != "NA")
+
+```
+
+```{r}
+library(tidyverse)
+
+
+# Factors
+Fixdata5$RECORDING_SESSION_LABEL <- as.factor(Fixdata5$RECORDING_SESSION_LABEL)
+Fixdata5$CURRENT_FIX_INTEREST_AREA_LABEL <- as.factor(Fixdata5$CURRENT_FIX_INTEREST_AREA_LABEL)
+Fixdata5$KEY_PRESSED<- as.factor(Fixdata5$KEY_PRESSED)
+Fixdata5$block_type<- as.factor(Fixdata5$block_type)
+Fixdata5$condition<- as.factor(Fixdata5$condition)
+
+# Numerical predictors
+Fixdata5$critical_word_length <- as.numeric(Fixdata5$critical_word_length)
+Fixdata5$difficulty <- as.numeric(Fixdata5$difficulty)
+Fixdata5$familiarity <- as.numeric(Fixdata5$familiarity)
+Fixdata5$logfreq_zipf <- as.numeric(Fixdata5$logfreq_zipf)
+Fixdata5$noun_frequency <- as.numeric(Fixdata5$noun_frequency)
+Fixdata5$percentage_ratio_nouns <- as.numeric(Fixdata5$percentage_ratio_nouns)
+Fixdata5$ratio_nouns <- as.numeric(Fixdata5$ratio_nouns)
+Fixdata5$sensicality <- as.numeric(Fixdata5$sensicality)
+Fixdata5$syllable_count <- as.numeric(Fixdata5$syllable_count)
+Fixdata5$verb_frequency <- as.numeric(Fixdata5$verb_frequency)
+Fixdata5$aprime <- as.numeric(Fixdata5$aprime)
+
+# center the numerical predictors
+
+Fixdata5$critical_word_length.c = Fixdata5$critical_word_length - mean(Fixdata5$critical_word_length)
+Fixdata5$difficulty.c = Fixdata5$difficulty - mean(Fixdata5$difficulty)
+Fixdata5$familiarity.c = Fixdata5$familiarity - mean(Fixdata5$familiarity)
+Fixdata5$logfreq_zipf.c = Fixdata5$logfreq_zipf - mean(Fixdata5$logfreq_zipf)
+Fixdata5$noun_frequency.c = Fixdata5$noun_frequency - mean(Fixdata5$noun_frequency)
+Fixdata5$percentage_ratio_nouns.c = Fixdata5$percentage_ratio_nouns - mean(Fixdata5$percentage_ratio_nouns)
+Fixdata5$ratio_nouns.c = Fixdata5$ratio_nouns - mean(Fixdata5$ratio_nouns)
+Fixdata5$sensicality.c = Fixdata5$sensicality - mean(Fixdata5$sensicality)
+Fixdata5$syllable_count.c = Fixdata5$syllable_count - mean(Fixdata5$syllable_count)
+Fixdata5$verb_frequency.c = Fixdata5$verb_frequency - mean(Fixdata5$verb_frequency)
+
+```
+
+# Remove outliers
+
+```{r}
+# remove outliers using the boxplot method
+boxplot(Fixdata5$FIRST_FIX_DUR, plot=TRUE)$out
+boxplot(Fixdata5$FIRST_PASS_DURATION, plot=TRUE)$out
+boxplot(Fixdata5$TOTAL_DURATION, plot=TRUE)$out
+
+outliers <- boxplot(Fixdata5$FIRST_FIX_DUR, plot=TRUE)$out
+outliers_first_pass <- boxplot(Fixdata5$FIRST_PASS_DURATION, plot=TRUE)$out
+outliers_total <- boxplot(Fixdata5$TOTAL_DURATION, plot=TRUE)$out
+
+Fixdata5<- Fixdata5[-which(Fixdata5$FIRST_FIX_DUR %in% outliers),]
+Fixdata5<- Fixdata5[-which(Fixdata5$FIRST_PASS_DURATION %in% outliers_first_pass),]
+Fixdata5<- Fixdata5[-which(Fixdata5$TOTAL_DURATION %in% outliers_total),]
+```
+
+
+# Plot first fixation duration data
+
+```{r}
+library(ggplot2)
+
+
+ggplot(data = Fixdata5,mapping = aes(x = condition, y = FIRST_FIX_DUR)) +
+    geom_boxplot(alpha = 0) +
+    geom_jitter(alpha = 0.2, color = "purple")+
+  xlab("Condition") +
+ylab("First fixation duration (ms)")
+  ylim(0,400)
+```
+
+# Descriptive statistics
+
+```{r}
+library(tidyverse)
+Fixdata6 <- Fixdata5 %>%
+  filter(condition == "noun")
+
+
+library(psych)
+describe(Fixdata6$FIRST_FIX_DUR)
+describe(Fixdata6$FIRST_PASS_DURATION)
+describe(Fixdata6$TOTAL_DURATION)
+
+```
+```{r}
+Fixdata7 <- Fixdata5 %>%
+  filter(condition == "verb")
+
+
+describe(Fixdata7$FIRST_FIX_DUR)
+describe(Fixdata7$FIRST_PASS_DURATION)
+describe(Fixdata7$TOTAL_DURATION)
+```
+
+
+# Plot first pass duration data
+
+```{r}
+library(ggplot2)
+
+ggplot(data = Fixdata5, mapping = aes(x = condition, y = FIRST_PASS_DURATION)) +
+    geom_boxplot(alpha = 0) +
+  xlab("Condition") +
+ylab("First pass duration (ms)")+
+    geom_jitter(alpha = 0.2, color = "purple")
+```
+# Plot total pass duration data
+
+```{r}
+library(ggplot2)
+
+ggplot(data = Fixdata5, mapping = aes(x = condition, y = TOTAL_DURATION)) +
+    geom_boxplot(alpha = 0) +
+   xlab("Condition") +
+ylab("Total reading duration (ms)")+
+  geom_jitter(alpha = 0.2, color = "purple")
+
+```
+
+
+
+# First fixation duration
+
+```{r}
+# remove the rows with missing values in the cognitive flexibility tasks in order to compare the models
+Fixdata5 <- Fixdata5 %>%
+  filter(performance != "NA" & SwitchingCost != "NA" & MixingCost != "NA")
+```
+
+```{r}
+# Test the null hypothesis that there is no difference in first fixation duration between the noun and the denominal verb condition, with condition as fixed effect and random intercepts for subjects
+
+library(lmerTest)
+mixedModel1  =lmer(FIRST_FIX_DUR ~ condition + (1|RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel1)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel1, Fixdata5, type = "lme4")
+```
+
+We observe a higly significant p-value for the denominal verb condition. 
+Thus it is unlikely to observe a relationship between the predictor (condition) and response (first fixation duration) variables due to chance.
+Our hypothesis test shows that individuals had longer first fixation duration to our critical verbs compared to their parent nouns.
+
+Subject variable does not explain much of the variation of the model.
+Only 12% of variation is explained through Subjects: 467.7/(467.7 + 3106.0)= 0.13
+
+
+```{r}
+# Model with condition as fixed effect and random intercepts for items
+
+mixedModel2  =lmer(FIRST_FIX_DUR ~ condition + (1|item) , data=Fixdata5)
+summary(mixedModel2)
+```
+
+Item variable does not explain much of the variation of the model.
+Only 2% of variation is explained through Subjects: 58.89/(58.89 + 3494.05)= 0.016
+
+
+```{r}
+lme.dscore(mixedModel2, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel1, mixedModel2)
+```
+
+Model 1 is better than model 2 (AIC = 16470).
+
+
+```{r}
+# Model with condition and critical word length as fixed effects and random intercepts for subjects
+
+mixedModel3  =lmer(FIRST_FIX_DUR ~ condition + critical_word_length + (1|RECORDING_SESSION_LABEL), data=Fixdata5)
+summary(mixedModel3)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel3, Fixdata5, type = "lme4")
+```
+
+The effect of the critical words' length is significant (p < 0.01).
+It is a negative effect which means that with every added value on the used word length scale, first fixation duration is expected to decrease with -2.49. Participants had shorter first fixation duration to the longer critical words.
+
+
+```{r}
+data$critical_word_length <- as.numeric(data$critical_word_length)
+
+df <- data %>%
+  filter(critical_word_length != "NA") %>%
+  group_by(condition) %>%
+  summarize(mean_lenght = mean(critical_word_length))
+df
+
+```
+
+
+```{r}
+anova(mixedModel1, mixedModel3)
+```
+
+The results of the anova show that model 3 is better than model 1.
+Critical word length significantly improves the model.
+
+```{r}
+# Model with interaction between condition and critical word length and random intercept for subjects
+
+mixedModel4 <- lmer(FIRST_FIX_DUR ~ condition * critical_word_length + (1|RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel4)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel4, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel4) # critical word length in interaction with condition does not significantly improve the model
+```
+
+Model with condition * critical word length is not significantly better than the model with condition and critical word length as fixed effects.
+
+```{r}
+# Model with syllable count, condition and critical word length as fixed effects
+
+mixedModel5 <- lmer(FIRST_FIX_DUR ~ condition + syllable_count + critical_word_length + (1|RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel5)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel5, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel5) # adding syllable count does not significantly improve the model
+```
+
+The anova shows that  model 3 is better than model 5.
+
+
+```{r}
+# Model with condition, aprime (N-back scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel6 <- lmer(FIRST_FIX_DUR ~ condition + aprime + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel6)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel6, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel6) # adding aprime does not significantly improve the model
+```
+
+Model 3 with condition and critical word length as fixed effects is better than model 6.
+
+```{r}
+# Model with interaction between aprime (N-back scores) and condition, critical word length as fixed effect and random intercept for subjects
+
+mixedModel7 <- lmer(FIRST_FIX_DUR ~ condition + aprime + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel7)
+```
+
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel7, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel7) # adding the interaction between aprime and condition does not significantly improve the model
+```
+
+
+```{r}
+# Model with performance (Flanker scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel8 <- lmer(FIRST_FIX_DUR ~ condition + performance + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel8)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel8, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel8) # adding performance does not significantly improve the model
+```
+
+```{r}
+# Model with interaction between condition and performance (Flanker scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel9 <- lmer(FIRST_FIX_DUR ~ condition * performance + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel9)
+```
+
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel9, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel3, mixedModel9) # adding the interaction between condition and performance does not significantly improve the model
+```
+
+
+```{r}
+# Model with condition, Switching cost (Set-shifting scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel10 <- lmer(FIRST_FIX_DUR ~ condition + SwitchingCost + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel10)
+```
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel10, Fixdata5, type = "lme4")
+```
+```{r}
+anova(mixedModel3, mixedModel10) # adding switching cost as a fixed effect did not improve the model
+```
+
+
+```{r}
+# Model with interaction between condition and Switching cost (Set-shifting scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel11 <- lmer(FIRST_FIX_DUR ~ condition * SwitchingCost + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel11)
+```
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel11, Fixdata5, type = "lme4")
+```
+```{r}
+anova(mixedModel3, mixedModel11) # adding the interaction between switching cost and condition improves the model
+```
+
+Model 11 is better than model 3.
+
+
+```{r}
+# Model with Mixing cost (Set-shifting scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel12 <- lmer(FIRST_FIX_DUR ~ condition + MixingCost  + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel12)
+```
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel12, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel11, mixedModel12) # adding Mixing Cost as a fixed effect does not significantly improve the model
+```
+
+
+```{r}
+# Model with interaction between condition and Mixing cost (Set-shifting scores), critical word length as fixed effect and random intercept for subjects
+
+mixedModel13 <- lmer(FIRST_FIX_DUR ~ condition * MixingCost  + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel13)
+```
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel13, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel11, mixedModel13) # adding the interaction between condition and mixing scores improves the model
+```
+
+```{r}
+# Add CLIP_Q scores as fixed effect
+
+mixedModel14 <- lmer(FIRST_FIX_DUR ~ condition * MixingCost  + critical_word_length + CLIP_Q + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel14)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel14, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel13, mixedModel14) # adding the CLIP_Q scores as fixed effect does not improve the model
+```
+
+```{r}
+# Add social media as a fixed effect
+
+mixedModel15 <- lmer(FIRST_FIX_DUR ~ condition * MixingCost + critical_word_length + social_media + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel15)
+```
+
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel15, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel13, mixedModel15) # adding social media as a fixed effect does not significantly improve the model
+```
+
+```{r}
+# Add reading habits as a fixed effect
+
+mixedModel16 <- lmer(FIRST_FIX_DUR ~ condition * MixingCost + critical_word_length + reading + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel16)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedModel16, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedModel13, mixedModel16) # adding reading as a fixed effect does not significantly improve the model
+```
+Model 13 is better.
+
+```{r}
+# Add random slopes for condition
+
+mixedModel17 <- lmer(FIRST_FIX_DUR ~ condition * MixingCost + critical_word_length + (1 + condition| RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedModel17)
+```
+
+```{r}
+library("EMAtools")
+lme.dscore(mixedModel17,Fixdata5, type="lme4")
+```
+
+```{r}
+anova(mixedModel13, mixedModel17) # adding condition as a random slope significantly improved the model
+```
+
+
+```{r}
+# Marginal R2 provides the variance explained only by fixed effects and conditional R2 provides the variance explained by the entire model, i.e., both fixed effects and random effects.
+
+library(MuMIn)
+r.squaredGLMM(mixedModel17)
+```
+
+
+```{r, fig.width=6, fig.height=4}
+library(visreg)
+visreg(mixedModel17, "MixingCost", by = "condition", overlay = T, xlab = "Mixing cost", ylab = "First fixation duration (ms)")
+```
+
+Mixing cost refers to mean RTs of non switch trials in a mixed block minus mean RTs of single task trials where no switching takes place.
+
+There is no main effect for individuals with low performance in set-shifting task.
+There is an effect for individuals with high performance in set-shifting task.
+
+
+```{r, fig.width=6, fig.height=4}
+library(visreg)
+visreg(mixedModel17, "critical_word_length", by = "condition", overlay = T, xlab = "Critical word length", ylab = "First fixation duration (ms)")
+```
+
+
+
+
+
+## Assumptions testing
+
+
+```{r}
+acf(resid(mixedModel17))  
+vif(mixedModel17)  
+qqnorm(resid(mixedModel17))
+qqline(resid(mixedModel17))
+plot(resid(mixedModel17), fitted(mixedModel17))
+```
+
+
+
+
+# First pass duration
+## Linear regression 
+
+```{r}
+# Test the null hypothesis that there is no difference in first pass duration between the noun and the denominal verb condition, with condition as fixed effect and random intercept for subjects
+
+mixedmodel1  =lmer(FIRST_PASS_DURATION ~ condition + (1|RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedmodel1)
+```
+
+Our hypothesis test shows that verb condition has significantly higher first pass durations compared to the noun condition.
+Subject variable does not explain much of the variation of the model.
+Only 8 % of variation is explained through Subjects: 987.1/(987.1 + 11644.0)= 0.08
+
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel1, Fixdata5, type =  "lme4")
+```
+
+
+```{r}
+# Model with item as random intercept
+
+mixedmodel2  =lmer(FIRST_PASS_DURATION ~ condition + (1|item) , data=Fixdata5)
+summary(mixedmodel2)
+```
+
+Item variable does not explain much of the variation of the model.
+Only 7 % of variation is explained through items: 931 /(931 + 11681)= 0.07
+
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel2, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedmodel1, mixedmodel2)
+```
+
+Model 1 is better.
+
+
+```{r}
+# Add syllale count as a fixed effect
+
+mixedmodel3 <- lmer(FIRST_PASS_DURATION ~ condition + syllable_count + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedmodel3)
+```
+
+For every added syllable the first pass duration to the critical words increases with 15.11
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel3, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedmodel1,mixedmodel3)
+```
+
+Model 3 with syllable count as a fixed effect significantly improves the model.
+
+
+
+```{r}
+# Test the interaction between condition and syllable count
+
+mixedmodel4 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count  + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(mixedmodel4)
+```
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel4, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(mixedmodel3, mixedmodel4) # the interaction significantly improves the model
+```
+
+Model 4 is better.
+
+
+
+```{r}
+# Add critical word length as a fixed effect
+
+mixedmodel5 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel5, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel5, Fixdata5, type = "lme4")
+```
+```{r}
+anova(mixedmodel4, mixedmodel5) # adding critical word length as a fixed effect significantly improves the model
+```
+
+```{r}
+# Add aprime as a fixed effect
+
+mixedmodel6 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + aprime + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel6, cor = F)
+```
+
+
+```{r}
+anova(mixedmodel5, mixedmodel6) # adding aprime does not significantly improve the model
+```
+
+```{r}
+# Add performance (Flanker scores) as a fixed effect
+
+mixedmodel7 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + performance + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel7, cor = F)
+```
+
+```{r}
+anova(mixedmodel5, mixedmodel7) # adding performance does not significantly improve the model
+```
+
+```{r}
+# Add Switching Cost as a fixed effect
+
+mixedmodel8 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + SwitchingCost + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel8, cor = F)
+```
+
+```{r}
+anova(mixedmodel5, mixedmodel8) # adding Switching cost does not significantly improve the model
+```
+
+```{r}
+# Add Mixing Cost as a fixed effect
+
+mixedmodel9<- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + MixingCost + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel9, cor = F)
+```
+
+```{r}
+anova(mixedmodel5, mixedmodel9) # adding Mixing cost does not significantly improve the model
+```
+
+```{r}
+# Add CLIP_Q as a fixed effect
+
+mixedmodel10 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + CLIP_Q + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel10, cor = F)
+```
+
+```{r}
+anova(mixedmodel5, mixedmodel10) # adding CLIP_Q  does not significantly improve the model
+```
+
+```{r}
+# Add reading as a fixed effect
+
+mixedmodel11 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + reading + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel11, cor = F)
+```
+
+```{r}
+anova(mixedmodel5, mixedmodel11) # adding reading does not significantly improve the model
+```
+
+Model 5 is the best.
+
+```{r}
+# Add random slopes
+
+mixedmodel12 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + (1 + condition| RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(mixedmodel12, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel12, Fixdata5, type = "lme4")
+```
+
+
+
+```{r}
+library(ggplot2)
+
+ggplot(data = Fixdata5, mapping = aes(x = critical_word_length, y = FIRST_PASS_DURATION, fill = condition)) +
+    geom_smooth(method = "lm") +  xlab("Critical word length") +
+  geom_jitter(alpha = 0.3, color = "purple")+
+ylab("First pass duration (ms)")
+```
+
+```{r}
+# Marginal R2 provides the variance explained only by fixed effects and conditional R2 provides the variance explained by the entire model, i.e., both fixed effects and random effects.
+library(MuMIn)
+r.squaredGLMM(mixedmodel12)
+```
+
+
+## Assumptions testing
+
+```{r}
+acf(resid(mixedmodel12))  
+vif(mixedmodel12)  
+qqnorm(resid(mixedmodel12))
+qqline(resid(mixedmodel12))
+plot(resid(mixedmodel12), fitted(mixedmodel12))
+```
+
+
+## Model criticism 
+
+The quantile-quantile-plot shows some problems at the tails, so model criticism is needed. 
+We employ model criticism by removing the data points which are problematic for the model.
+
+```{r}
+library(lmerTest)
+dat3 <- Fixdata5[abs(scale(resid(mixedmodel12))) < 2.5, ]
+(1 - (nrow(dat3))/nrow(Fixdata5)) * 100 
+mixedmodel12.v2 <- lmer(FIRST_PASS_DURATION ~ condition * syllable_count + critical_word_length  + (1 | RECORDING_SESSION_LABEL) ,data = dat3)
+summary(mixedmodel12.v2)
+qqnorm(resid(mixedmodel12.v2))
+qqline(resid(mixedmodel12.v2))
+plot(resid(mixedmodel12.v2), fitted(mixedmodel12.v2))
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(mixedmodel12.v2, Fixdata5, type =  "lme4")
+```
+
+```{r, fig.width=6, fig.height=4}
+visreg(mixedmodel12.v2, "syllable_count", by = "condition", overlay = T, xlab = "Syllable count", ylab = "First pass duration (ms)")
+```
+
+```{r, fig.width=6, fig.height=4}
+visreg(mixedmodel12.v2, "critical_word_length", by = "condition", overlay = T, xlab = "Critical word length", ylab = "First pass duration (ms)")
+```
+
+# Total pass duration
+
+
+```{r}
+# Test the null hypothesis that there is no difference in the total reading time between the noun and the denominal verb condition, with condition as fixed effect and random intercepts for subjects
+
+model1  =lmer(TOTAL_DURATION ~ condition + (1|RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary( model1)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model1, Fixdata5, type = "lme4")
+```
+
+Our hypothesis test shows that the denominal verb condition has significantly longer total reading times compared to the noun condition.
+
+Subject variable does not explain much of the variation of the model.
+Only 16 % of variation is explained through Subjects: 40751/(40751 + 212481)= 0.16
+
+```{r}
+# Random intercept for item
+
+library(lmerTest)
+model2=lmer(TOTAL_DURATION ~ condition + (1|item) , data=Fixdata5)
+summary(model2)
+```
+
+Item variable does not explain much of the variation of the model.
+Only 10 % of variation is explained through items: 25664/(25664 + 226274)= 0.10
+
+```{r}
+library(EMAtools)
+lme.dscore(model2, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model1, model2)
+```
+
+Model 1 is better.
+
+
+```{r}
+# Add fixed effect for syllable count
+
+model3 <- lmer(TOTAL_DURATION ~ condition + syllable_count + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(model3)
+```
+The effect of syllable count is significant (p<0.001).
+The model direction of the effect is a positive one: with every added syllable, total reading duration is expected to increase with a value of 64.45.
+
+```{r}
+library(EMAtools)
+lme.dscore(model3, Fixdata5, type = "lme4")
+```
+
+
+```{r}
+anova(model1,model3) # adding syllable count as fixed effect significantly improved the model
+```
+
+
+```{r}
+# Add interaction between condition and syllable count
+
+model4 <- lmer(TOTAL_DURATION ~ condition * syllable_count + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(model4)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model4, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model3, model4) # adding the interaction significantly improves the model
+```
+
+Model 4 is better.
+
+```{r}
+# Add fixed effect for critical word length
+
+model5 <- lmer(TOTAL_DURATION ~ condition * syllable_count + critical_word_length + (1 | RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(model5)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model5, Fixdata5, type = "lme4")
+```
+
+
+The effect of critical word length is significant (p<0.001).
+The model direction of the effect is a positive one: with every added character, total reading duration of the critical word is expected to increase with a value of 65.12.
+
+```{r}
+anova(model4, model5) # adding critical word length as a fixed effect significantly improved the model.
+```
+
+Model 5 is better.
+
+```{r}
+# Add a random slope for condition
+
+model6 <- lmer(TOTAL_DURATION ~ condition * syllable_count + critical_word_length + (1 + condition| RECORDING_SESSION_LABEL) , data=Fixdata5)
+summary(model6)
+```
+```{r}
+lme.dscore(model6, Fixdata5, type = "lme4")
+```
+```{r}
+anova(model5, model6) # adding the random slope significantly improved the model
+```
+
+Model 6 is better.
+
+```{r, fig.width=6, fig.height=4}
+visreg(model6, "syllable_count", by = "condition", overlay = T, xlab = "Syllable count", ylab = "Total reading duration")
+```
+```{r, fig.width=6, fig.height=4}
+visreg(model6, "critical_word_length", by = "condition", overlay = T, xlab = "Critical word length", ylab = "Total reading duration (ms)")
+```
+```{r}
+library(ggplot2)
+
+ggplot(data = Fixdata5, mapping = aes(x = syllable_count, y = TOTAL_DURATION, fill = condition)) +
+    geom_smooth(method = "lm") +  xlab("Syllable count") +
+ylab("Total reading duration (ms)")
+```
+
+
+```{r}
+# Add aprime as a fixed effect
+model7 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + aprime + (1 + condition | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model7, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model7, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model7, model6) # adding aprime as a fixed effect did not significantly improved the model
+```
+
+Model 6 is better.
+
+```{r}
+# Add performance as a fixed effect
+model8 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + performance + (1 + condition | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model8, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model8, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model6,model8) # adding performance as a fixed effect did not significantly improved the model
+```
+
+Model 6 is better.
+
+```{r}
+# Add Mixing Cost as a fixed effect
+model9 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + MixingCost + (1 +condition | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model9, cor = F)
+```
+
+
+```{r}
+library(EMAtools)
+lme.dscore(model9, Fixdata5, type = "lme4")
+```
+
+
+```{r}
+anova(model6, model9) # adding mixing cost as a fixed effect did not significantly improved the model (AIC is the same)
+```
+
+```{r}
+# Add social media as a fixed effect
+model10 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + social_media + (1 + condition | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model10, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model10, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model6, model10) # adding social media as a fixed effect did not significantly improved the model
+```
+
+Model 6 is better.
+
+```{r}
+# Add CLIP_Q as a fixed effect
+model11 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + CLIP_Q + (1 +condition | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model11, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model11, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model6, model11)
+```
+
+Model 6 is better.
+
+```{r}
+# Add reading as a fixed effect
+model12 <- lmer(TOTAL_DURATION ~ condition * syllable_count  + critical_word_length + reading + (1 | RECORDING_SESSION_LABEL) , data = Fixdata5)
+
+summary(model12, cor = F)
+```
+
+```{r}
+library(EMAtools)
+lme.dscore(model12, Fixdata5, type = "lme4")
+```
+
+```{r}
+anova(model6,model12) # adding reading as a fixed effect did not improve the model
+```
+Model 6 is better.
+
+
+```{r}
+# Marginal R2 provides the variance explained only by fixed effects and conditional R2 provides the variance explained by the entire model, i.e., both fixed effects and random effects.
+
+r.squaredGLMM(model6)
+```
+
+
+## Assumptions testing
+
+
+```{r}
+acf(resid(model6))  
+vif(model6)  
+qqnorm(resid(model6))
+qqline(resid(model6))
+plot(resid(model6), fitted(model6))
+```
+
+
+
+
+
+
+

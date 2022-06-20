@@ -1,0 +1,248 @@
+---
+title: "Set shifting task"
+author: "Maria Polychronidou"
+date: "20/4/2022"
+output:
+  html_document:
+    toc: yes
+    code_folding: hide
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+    number_sections: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(stats)
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(readr)
+library(tidyr)
+```
+
+
+# Load data
+
+```{r}
+Polym001_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym001_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym002_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym002_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym003_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym003_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym004_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym004_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym005_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym005_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym006_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym006_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym007_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym007_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym008_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym008_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym009_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym009_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym010_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym010_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym011_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym011_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym012_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym012_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym013_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym013_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym014_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym014_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym015_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym015_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym016_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym016_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym017_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym017_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym018_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym018_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym019_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym019_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym020_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym020_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym021_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym021_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym022_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym022_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym023_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym023_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym024_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym024_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym025_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym025_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym026_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym026_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym027_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym027_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym028_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym028_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym029_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym029_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+Polym030_Set_shifting_task <- read_delim("C:/Users/polyc/Desktop/THESIS/ANALYSIS/COGNITIVE TASKS/Set-shifting txt files/Polym030_Set shifting task.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+
+```
+
+# Merge data
+
+```{r}
+# Participant Polym002 was excluded because of zero accuracy(probably wrong key presses)
+
+data <- rbind(Polym001_Set_shifting_task,Polym003_Set_shifting_task,Polym004_Set_shifting_task,Polym005_Set_shifting_task,Polym006_Set_shifting_task,Polym007_Set_shifting_task,Polym008_Set_shifting_task,Polym009_Set_shifting_task,Polym010_Set_shifting_task,Polym011_Set_shifting_task,Polym012_Set_shifting_task,Polym013_Set_shifting_task,Polym014_Set_shifting_task,Polym015_Set_shifting_task,Polym016_Set_shifting_task,Polym017_Set_shifting_task,Polym018_Set_shifting_task,Polym019_Set_shifting_task,Polym020_Set_shifting_task,Polym021_Set_shifting_task,Polym022_Set_shifting_task,Polym023_Set_shifting_task,Polym024_Set_shifting_task,Polym025_Set_shifting_task,Polym026_Set_shifting_task,Polym027_Set_shifting_task,Polym028_Set_shifting_task,Polym029_Set_shifting_task,Polym030_Set_shifting_task)
+```
+
+# Remove practice trials, instructions etc.
+```{r}
+data <- data %>% 
+  filter(display != "practice trial")%>%
+  filter(condition != "shape_throwaway")%>% #remove throwaway items
+  filter(condition != "colour_throwaway")
+```
+
+# Keep necessary columns
+
+```{r}
+library(tidyverse)
+data <- data %>%
+  select(participant, display,leftcue,rightcue,cue,target,ANSWER,condition,key_resp_5.keys,key_resp_5.corr,key_resp_5.rt,key_resp_6.keys,key_resp_6.corr,key_resp_6.rt,key_resp_7.keys,key_resp_7.corr,key_resp_7.rt)
+
+data$correct_answer <- data$ANSWER
+
+data <- data %>%
+  mutate(response = coalesce(key_resp_5.keys,key_resp_6.keys,key_resp_7.keys)) %>% 
+  mutate(correctness = coalesce(key_resp_5.corr,key_resp_6.corr,key_resp_7.corr))%>% 
+  mutate(response_time = coalesce(key_resp_5.rt,key_resp_6.rt,key_resp_7.rt)) %>%
+  select(participant,display,leftcue,rightcue,cue,target,condition,correct_answer,response,correctness,response_time)
+```
+
+```{r}
+#responses are already coded as Correct (1/0)
+#but we need a score per participant per condition
+tapply(data$participant,list(data$participant,data$correctness),length)
+```
+
+# Calculate switching costs and mixing costs
+
+```{r}
+#Switching cost refers to mean reaction times (RTs) of switch trials minus mean RTs of non-switch trials within a mixed block, i.e., within the task block where switching takes place. 
+
+#Mixing cost refers to mean RTs of nonswitch trials in a mixed block minus mean RTs of single task trials where no switching takes place.
+
+#make Switch column
+data$Switch <- data$cue != lag(data$cue) 
+data$Switch <- ifelse(data$condition != 'shift',FALSE,data$Switch)
+
+data$response_time <- as.numeric(data$response_time)
+data <- data %>%
+  filter(response_time != "NA")
+
+# calculate switching costs per participant
+SetShift_Aggr <- aggregate(data$response_time, list(data$participant,data$Switch,data$condition), FUN=mean) 
+SetShift_Aggr2 <- aggregate(data$correctness, list(data$participant,data$Switch,data$condition), FUN=mean) 
+SetShift_Aggr$Accuracy <- SetShift_Aggr2$x
+
+setnames(SetShift_Aggr, "x", "RT")
+setnames(SetShift_Aggr, "Group.1", "Participant")
+setnames(SetShift_Aggr, "Group.2", "Switch")
+setnames(SetShift_Aggr, "Group.3", "Condition")
+
+SetShift_AggrWide <- pivot_wider(as.data.table(SetShift_Aggr),names_from = c('Switch','Condition'),values_from = c('RT','Accuracy'))
+SetShift_AggrWide <- as.data.table(SetShift_AggrWide)
+
+SetShift_AggrWide$SwitchingCost <- SetShift_AggrWide$RT_TRUE_shift - SetShift_AggrWide$RT_FALSE_shift
+SetShift_AggrWide$NoMixing <- (SetShift_AggrWide$RT_FALSE_colour+SetShift_AggrWide$RT_FALSE_shape)/2
+SetShift_AggrWide$MixingCost <- SetShift_AggrWide$RT_FALSE_shift - SetShift_AggrWide$NoMixing
+
+SetShift_AggrWide$SwitchingCost
+SetShift_AggrWide$MixingCost
+```
+
+# Mean response times of switch and non-switch trials
+```{r}
+d_sum <- data %>%
+  group_by(Switch)%>%
+  summarise(mean_RT = mean(response_time),
+            sd_RT = sd(response_time))
+d_sum
+
+```
+
+
+
+
+# Mean switching cost score
+```{r}
+library(psych)
+SetShift_AggrWide2 <- SetShift_AggrWide %>%
+  dplyr::select(Participant,SwitchingCost)
+SetShift_AggrWide2
+
+describe(SetShift_AggrWide2$SwitchingCost)
+```
+
+# Mean mixing cost score
+```{r}
+library(psych)
+SetShift_AggrWide3 <- SetShift_AggrWide %>%
+  dplyr::select(Participant,MixingCost)
+SetShift_AggrWide3
+
+describe(SetShift_AggrWide3$MixingCost)
+```
+
+
+```{r}
+saveRDS(SetShift_AggrWide, file = "Set-shifting.rds", compress = "xz")
+```
+
+
+
+
+
+
+
+
+

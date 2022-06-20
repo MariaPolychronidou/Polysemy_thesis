@@ -1,0 +1,717 @@
+---
+title: "Analysis of pupil size data"
+author: "Maria Polychronidou"
+date: "12/3/2022"
+output:
+  html_document:
+    toc: yes
+    code_folding: hide
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+    number_sections: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library("dplyr")
+library("mgcv")
+library("itsadug")
+```
+```{r}
+memory.limit(size = 1800000)
+```
+
+
+# Load data
+
+```{r}
+library(readr)
+readRDS("FinalPolym001.rds")
+readRDS("FinalPolym002.rds")
+readRDS("FinalPolym003.rds")
+readRDS("FinalPolym004.rds")
+readRDS("FinalPolym005.rds")
+readRDS("FinalPolym006.rds")
+readRDS("FinalPolym007.rds")
+readRDS("FinalPolym008.rds")
+readRDS("FinalPolym009.rds")
+readRDS("FinalPolym010.rds")
+readRDS("FinalPolym011.rds")
+readRDS("FinalPolym012.rds")
+readRDS("FinalPolym013.rds")
+readRDS("FinalPolym014.rds")
+readRDS("FinalPolym015.rds")
+readRDS("FinalPolym016.rds")
+readRDS("FinalPolym017.rds")
+readRDS("FinalPolym018.rds")
+readRDS("FinalPolym019.rds")
+readRDS("FinalPolym020.rds")
+readRDS("FinalPolym021.rds")
+readRDS("FinalPolym022.rds")
+readRDS("FinalPolym023.rds")
+readRDS("FinalPolym024.rds")
+readRDS("FinalPolym025.rds")
+readRDS("FinalPolym026.rds")
+readRDS("FinalPolym027.rds")
+readRDS("FinalPolym028.rds")
+readRDS("FinalPolym029.rds")
+readRDS("FinalPolym030.rds")
+
+
+
+```
+
+# Merge data
+
+```{r}
+require(tidyverse)
+
+rdsfiles <-
+  c(
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym001.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym002.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym003.rds", 
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym004.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym005.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym006.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym007.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym008.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym009.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym010.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym011.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym012.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym013.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym014.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym015.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym016.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym017.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym018.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym019.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym020.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym021.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym022.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym023.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym024.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym025.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym026.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym027.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym028.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym029.rds",
+    "C:/Users/polyc/Desktop/THESIS/ANALYSIS/PUPIL DATA/FinalPolym030.rds"
+    
+    
+    
+    
+    
+    
+  )
+
+
+
+data <- rdsfiles %>%
+  map_dfr(readRDS)
+```
+
+
+
+# Delete columns 
+
+```{r}
+data$LEFT_ACCELERATION_X <- data$LEFT_ACCELERATION_Y <- data$LEFT_GAZE_X <- data$LEFT_GAZE_Y <- data$LEFT_GAZE_Y <- data$LEFT_IN_BLINK <- data$LEFT_IN_SACCADE <- data$LEFT_PUPIL_SIZE <- data$LEFT_VELOCITY_X <- data$LEFT_VELOCITY_Y <- data$LEFT_VELOCITY_Y <- data$Velocity_X <- data$Velocity_Y <- data$Acceleration_X <- data$Acceleration_Y <- data$Trial_Recycled_ <- data$DATA_FILE <- data$GROUPING_VARIABLES <- data$RIGHT_ACCELERATION_X <- data$RIGHT_ACCELERATION_Y <- data$TARGET_VELOCITY_X <- data$TARGET_VELOCITY_Y <- data$RIGHT_VELOCITY_X <- data$RIGHT_VELOCITY_Y <- data$Pupil_Data <- data$SAMPLE_INDEX <- data$SAMPLE_MESSAGE  <- data$EyeSelected <- NULL
+```
+
+
+# Add cognitive flexibility scores
+
+```{r}
+library("readxl")
+
+Language_questionnaire_data <- read_excel("Language questionnaire data.xlsx")
+Nback_scores <- readRDS("Nback_scores.rds")
+Flanker_scores <- readRDS("Flanker_scores.rds")
+Set_shifting_scores <- readRDS("Set-shifting.rds")
+
+data <- merge(data,Nback_scores,by.x=c("Subject"), by.y = c("participant"),all = TRUE)
+data <- merge(data,Flanker_scores,by.x=c("Subject"), by.y = c("participant"),all = TRUE)
+data <- merge(data, Language_questionnaire_data,by.x=c("Subject"), by.y = c("Participant_number"),all = TRUE)
+data <- merge(data, Set_shifting_scores,by.x=c("Subject"), by.y = c("Participant"),all = TRUE)
+```
+
+
+# Keep necessary columns 
+
+```{r}
+data <- data %>%
+  dplyr::select(Subject, AVERAGE_PUPIL_SIZE, TRIAL_INDEX, RIGHT_GAZE_X, RIGHT_GAZE_Y, RIGHT_INTEREST_AREA_ID, RIGHT_IN_BLINK, RIGHT_IN_SACCADE, RIGHT_PUPIL_SIZE, TIMESTAMP, ACCURACY, condition, critical_word, critical_word_length, criticalword_number, item, syllable_count, Event, CRITICAL_FIX, Time, Pupil, Gaze_X, Gaze_Y, Baseline,aprime,dprime,performance, `Q14_a-f_attitudes`, `Q14_g-t_CLIP-Q`,Q15_social_media,Q16_reading_total,SwitchingCost,MixingCost, logfreq_zipf)
+
+data <- data %>%
+  filter(condition != "practice")
+
+data$attitudes <- data$`Q14_a-f_attitudes`
+data$CLIP_Q <- data$`Q14_g-t_CLIP-Q`
+data$social_media <- data$Q15_social_media
+data$reading <- data$Q16_reading_total
+
+```
+
+
+# Downsample to 50 Hz
+
+```{r}
+library(PupilPre)
+check_samplingrate(data)
+data <- downsample(data, SamplingRate = 250, NewRate = 50) # new sampling rate
+
+```
+
+
+# Proportional pupil change
+
+```{r}
+# New column for the proportional change of pupil according to the baseline of preprocessing 
+
+#The arbitrary pupil units should be transformed into a standardized unit in order to make comparisons between individuals.
+#Proportional change relative to baseline (Winn, 2016)
+
+library(tidyverse)
+
+data <- mutate(data, PROPORTIONAL_PUPIL = ((data$RIGHT_PUPIL_SIZE - data$Baseline) / data$Baseline))
+
+# Set values as numeric
+
+data$PROPORTIONAL_PUPIL <- as.numeric(data$PROPORTIONAL_PUPIL)
+
+# Replace Pupil column with proportional pupil change for the steps below (plot etc.)
+
+data$Pupil = data$PROPORTIONAL_PUPIL
+```
+
+# Extracting plotting data
+
+```{r}
+# Create a list object containing the plotting data.
+
+library(PupilPre)
+plt <- ppl_plot_avg(data = data, xlim = c(-200, 3000), Column = "Pupil",
+                    Condition1 = "condition", Condition2 = NULL, Cond1Labels = NA,
+                    Cond2Labels = NA, Averaging = "Subject", ErrorBar = TRUE,
+                    ErrorType = "SE", PupilPreTheme = TRUE) 
+
+df <- plt$data
+```
+
+```{r}
+# Create a subset with the two critical conditions
+
+data2 <- filter(data, condition == "verb" | condition == "noun")
+```
+
+
+# Plot proportional pupil change 
+
+```{r}
+library("ggplot2")
+library("PupilPre")
+
+ppl_plot_avg(data = data, xlim = c(-200, 3000), Column = "Pupil", 
+             Condition1 = "condition", ErrorBar = TRUE,
+                    ErrorType = "SE", PupilPreTheme = FALSE)
+
+```
+
+
+
+```{r}
+memory.limit(size=900000000)
+```
+# Baseline model
+
+```{r}
+# we use bam because we have a large dataset; bam also contains corrections for autocorrelation
+
+library("mgcv")
+model <- bam(Pupil ~ s(Time), data = data2)
+summary(model)
+```
+
+## Plot model smooths
+
+```{r}
+plot(model, rug = F, shade =T, main = "Partial effect", ylab = "Pupil", ylim = c(-0.08,0.08))
+plot_smooth(model, view = "Time", rug = F, main = "Full effect",ylim = c(-0.08,0.08))
+```
+# Model 1
+
+```{r}
+# add random effect for subjects
+model1 <- bam(Pupil ~ s(Time)
+              + s(Subject, bs = 're', m=1),
+              data = data2)
+summary(model1)
+```
+
+## Plot model smooths
+
+```{r}
+plot_smooth(model, view = "Time", rug = F, main = "model",ylim = c(-0.08,0.08))
+plot_smooth(model1, view = "Time", rug = F, main = "model1",ylim = c(-0.08,0.08)) # we allow variability;that's why we have larger confidence bands
+```
+
+## Model comparison
+```{r}
+model.ml <- bam(Pupil ~ s(Time), data = data2, method = "ML")
+model1.ml <- bam(Pupil ~ s(Time) + s(Subject, bs = 're', m=1), data = data2, method = "ML")
+compareML(model.ml,model1.ml) # model 1 is better while it has a lower AIC
+```
+
+
+# Model 2 
+
+```{r}
+# add factor smooths for subjects and items
+model2 <- bam(Pupil ~ s(Time)
+              + s(Time, Subject, bs = 'fs', m=1) # add factor smooth instead of random effect
+              + s(Time,item,bs="fs", m=1),
+              data = data2)
+summary(model2)
+```
+
+## Plot model smooths
+
+```{r}
+plot_smooth(model1, view = "Time", rug = F, main = "model1",ylim = c(-0.08,0.08))
+plot_smooth(model2, view = "Time", rug = F, main = "model2",ylim = c(-0.08,0.08))
+```
+
+## Model comparison
+
+```{r}
+model1.ml <- bam(Pupil ~ s(Time) + s(Subject, bs = 're', m=1), data = data2, method = "ML")
+model2.ml <- bam(Pupil ~ s(Time) + s(Time, Subject, bs = 'fs', m=1) + s(Time,item,bs="fs", m=1), data = data2, method = "ML")
+
+
+compareML(model1.ml,model2.ml) # model 2 is better
+```
+
+# Model 3
+
+```{r}
+# add fixed effect for condition
+data2$condition <- as.factor(data2$condition)
+model3 <- bam(Pupil ~ s(Time, by = condition, k=20) + condition
+              + s(Time, Subject, bs="fs",m=1) 
+              + s(Time,item,bs="fs", m=1), 
+              data= data2, discrete= TRUE)
+summary(model3)
+```
+
+## Plot model smooths
+
+```{r}
+plot(model3, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model3)[1],
+col='red', lty=2)
+```
+
+## Model comparison
+```{r}
+model2.ml <- bam(Pupil ~ s(Time) + s(Time, Subject, bs = 'fs', m=1) + s(Time,item,bs="fs", m=1), data = data2, method = "ML")
+model3.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+
+
+compareML(model2.ml,model3.ml) # model 3 is better
+```
+
+
+# Model 4 
+
+```{r}
+# add interaction for gaze position
+model4 <- bam(Pupil ~ s(Time, by = condition, k=20) + condition
+              + s(Gaze_X, Gaze_Y) 
+              + s(Time, Subject, bs="fs",m=1) 
+              + s(Time,item,bs="fs", m=1), 
+              data= data2, discrete= TRUE)
+summary(model4)
+```
+
+## Plot model smooths
+
+```{r}
+plot(model4, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model4)[1],
+col='red', lty=2)
+```
+
+## Model comparison
+
+```{r}
+model3.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model4.ml <-bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+
+compareML(model3.ml,model4.ml) # model 4 is better
+
+```
+
+
+# Model 5
+
+```{r}
+# add fixed effect for N-back scores and exclude random smooth for items
+model5 <- bam (Pupil ~ s(Time, by = condition, k=20) 
+               + condition 
+               + s(Gaze_X, Gaze_Y)
+               + s(Time, by = aprime, k=20)
+               + s(Time, Subject, bs="fs",m=1), 
+               data= data2,discrete= TRUE)
+ summary(model5) 
+```
+
+## Plot model smooths
+
+```{r}
+plot(model5, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model5)[1],
+col='red', lty=2)
+```
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model5.ml <- bam (Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y)+ s(Time, by = aprime, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model5.ml) # model 4 is better
+```
+
+
+# Model 6
+
+```{r}
+# add fixed effect for Flanker task scores
+
+model6 <- bam (Pupil ~ s(Time, by = condition, k=20) 
+               + condition 
+               + s(Gaze_X, Gaze_Y)
+               + s(Time, by = performance, k=20)
+               + s(Time, Subject, bs="fs",m=1), 
+               data= data2,discrete= TRUE)
+ summary(model6) 
+```
+
+## Plot model smooths
+
+```{r}
+plot(model6, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model6)[1],
+col='red', lty=2)
+```
+```{r}
+library(mgcv)
+library(itsadug)
+```
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model6.ml <- bam (Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = performance, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model6.ml) # model 4 is better
+```
+
+
+
+# Model 7
+
+```{r}
+# add fixed effect for set-shifting task scores
+
+model7 <- bam(Pupil ~ s(Time, by = condition, k=20) 
+              + condition  
+              + s(Gaze_X, Gaze_Y)
+              + s(Time, by = MixingCost, k=20)
+              + s(Time, Subject, bs="fs",m=1), 
+              data= data2, discrete= TRUE)
+summary(model7)
+```
+
+## Plot model smooths
+
+```{r}
+plot(model7, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model7)[1],
+col='red', lty=2)
+```
+
+
+
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model7.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = MixingCost, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model7.ml) # model 4 is better
+```
+
+
+# Model 8
+
+```{r}
+# add fixed effect for attitudes
+
+model8 <- bam(Pupil ~ s(Time, by = condition, k=20) 
+              + condition
+              + s(Gaze_X, Gaze_Y)
+              + s(Time, by = attitudes, k=20)
+              + s(Time, Subject, bs="fs",m=1), 
+              data= data2, discrete= TRUE)
+summary(model8)
+```
+
+
+
+## Plot model smooths
+
+```{r}
+plot(model8, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model8)[1],
+col='red', lty=2)
+```
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model8.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = attitudes, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model8.ml) # model 4 is better
+```
+
+
+
+# Model 9
+
+```{r}
+# add fixed effect for CLIP_Q
+
+model9 <- bam(Pupil ~ s(Time, by = condition, k=20) 
+              + condition  
+              + s(Gaze_X, Gaze_Y)
+              + s(Time, by = CLIP_Q, k=20)
+              + s(Time, Subject, bs="fs",m=1), 
+              data= data2, discrete= TRUE)
+summary(model9)
+```
+
+
+
+## Plot model smooths
+
+```{r}
+plot(model9, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model9)[1],
+col='red', lty=2)
+```
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model9.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = CLIP_Q, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model9.ml) # model 4 is better
+```
+
+# Model 10
+
+```{r}
+# add fixed effect for reading habits
+
+model10 <- bam(Pupil ~ s(Time, by = condition, k=20) 
+              + condition  
+              + s(Gaze_X, Gaze_Y)
+              + s(Time, by = reading, k=20)
+              + s(Time, Subject, bs="fs",m=1), 
+              data= data2, discrete= TRUE)
+summary(model10)
+```
+
+
+
+## Plot model smooths
+
+```{r}
+plot(model10, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model10)[1],
+col='red', lty=2)
+```
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model10.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = reading, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model10.ml) # model 4 is better
+```
+
+
+
+# Model 11
+
+```{r}
+# add fixed effect for social media use
+
+model11 <- bam(Pupil ~ s(Time, by = condition, k=20) 
+              + condition  
+              + s(Gaze_X, Gaze_Y)
+              + s(Time, by = social_media, k=20)
+              + s(Time, Subject, bs="fs",m=1), 
+              data= data2, discrete= TRUE)
+summary(model11)
+```
+
+
+
+## Plot model smooths
+
+```{r}
+plot(model11, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model11)[1],
+col='red', lty=2)
+```
+
+
+## Model comparison
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model11.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, by = social_media, k=20) + s(Time, Subject, bs="fs",m=1), data= data2, method = "ML")
+
+compareML(model4.ml,model11.ml) # model 4 is better
+```
+
+
+
+# Model criticism
+
+## Check residuals
+
+To evaluate the model fit, we look at the residuals.
+
+```{r}
+gam.check(model4)
+
+```
+
+The first plot shows that the residuals deviate from the straight line.
+In addition, the plot with the response and fitted values confirms the high autocorrelation.
+
+
+
+## Check autocorrelation
+
+```{r}
+acf(resid(model4), main='ACF of res model4')
+```
+
+Again the residuals plot shows high autocorrelation (there are high values for Lag 1 and following lags).
+
+
+# Correcting for autocorrelation
+
+## Create new model
+
+```{r}
+rho=0.99 # use the amount of correlation at lag 2
+model4_corr <- bam(Pupil ~ s(Time, by = condition, k=20) 
+                   + condition 
+                   + s(Gaze_X, Gaze_Y) 
+                   + s(Time, Subject, bs="fs",m=1) 
+                   + s(Time,item,bs="fs", m=1), data= data2, rho=rho)
+
+summary(model4_corr)
+```
+## Plot residuals of the two models
+
+```{r}
+# autocorrelation has been removed
+par(mfrow = c(1,2))
+acf_resid(model4, main = "ACF of model 4")
+acf_resid(model4_corr, main = "ACF of corrected model4")
+
+```
+## Compare the two models
+
+```{r}
+model4.ml <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, method = "ML")
+model4_corr <- bam(Pupil ~ s(Time, by = condition, k=20) + condition + s(Gaze_X, Gaze_Y) + s(Time, Subject, bs="fs",m=1) + s(Time,item,bs="fs", m=1), data= data2, rho=rho, method = "ML")
+
+compareML(model4.ml, model4_corr) # clear model improvement, model4_corr has lower AIC
+```
+
+# Plot model smooths of the best-fitting model
+
+```{r}
+plot(model4_corr, rug=F)
+abline(h=0)
+abline(v=c(0,1000), lty=3)
+abline(h=-1*coef(model4_corr)[1],
+col='red', lty=2)
+```
+# Visualizing the patterns of the best-fitting model
+
+```{r}
+plot_smooth(model4_corr, view = "Time", rug = F, plot_all = "condition", main = "Best-fitting model")
+
+```
+
+```{r}
+par(mfrow=c(1,1), cex=1.1)
+# including random effects:
+fvisgam(model4_corr, view=c("Gaze_X","Gaze_Y"), cond=list(Group="verb"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
